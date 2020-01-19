@@ -37,7 +37,6 @@ class Parser:
 
         commands = self._commands
         command_name = args.pop(0)
-        log.warning(commands)
         if command_name in commands:
             return commands.get(command_name).execute(term=term, args=args)
 

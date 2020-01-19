@@ -71,9 +71,13 @@ class IOTerminal:
                 print(result)
 
     def format_ps(self, end: str = "") -> str:
+        try:
+            to = (Path.cwd() / self.path).resolve().relative_to(Path.cwd())
+        except ValueError:
+            to = self.path
         return (
             self.format.format(
-                path=f"/{self.path}", name=self.name, terminal=self.term, ps=self.ps, end=end
+                path=f"/{to}", name=self.name, terminal=self.term, ps=self.ps, end=end
             )
         )
 

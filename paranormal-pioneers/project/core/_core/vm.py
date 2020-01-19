@@ -39,7 +39,7 @@ class Env:
         oo = cfg["DEFAULT"]
 
         self.fs_root: pl.Path = pl.Path(oo["fs_root"])
-        self.ex_env: bool = oo.getboolean("allow_exit_env", False)
+        self.ex_env: bool = oo.getboolean("allow_exit_env", True)
         self._terminals: Dict[str, Terminal] = {}
 
     def add_terminal(self, uid: str, term: "Terminal") -> None:

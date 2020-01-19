@@ -38,9 +38,9 @@ class FsApi(ApiBase):
                     yield file
 
     def check_env(self, path: str) -> bool:
-        fpath = self._to_full_path(path)
+        fpath = self._to_full_path(path).resolve()
         try:
-            fpath.relative_to(self.env.fs_root)
+            fpath.relative_to(self.env.fs_root.resolve())
             return True
         except ValueError:  # outside
             if self.env.ex_env:

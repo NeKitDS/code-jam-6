@@ -2,7 +2,7 @@ from argparse import Namespace
 from datetime import datetime
 from typing import Iterator, List
 
-from project.core import api, command
+from project.core import api, command, PathLike
 from project.core.parser import Parser
 from project.core.terminal import IOTerminal
 
@@ -79,7 +79,7 @@ def _human_timestamp(seconds: int) -> str:
     return datetime.fromtimestamp(seconds).strftime("%y.%m.%d %H:%M:%S")
 
 
-def _define_type(path: api.PathLike) -> str:
+def _define_type(path: PathLike) -> str:
     if path.is_dir():
         return "dir"
     elif path.is_socket():
