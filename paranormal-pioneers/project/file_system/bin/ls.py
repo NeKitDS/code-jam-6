@@ -2,7 +2,7 @@ from argparse import Namespace
 from datetime import datetime
 from typing import Iterator, List
 
-from project.core import api, command, PathLike
+from project.core import PathLike, command
 from project.core.parser import Parser
 from project.core.terminal import IOTerminal
 
