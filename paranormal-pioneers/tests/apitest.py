@@ -2,37 +2,20 @@ import io
 import os
 import pathlib as pl
 import shutil
+import sys
 import unittest
-from typing import IO
 
 from project.core import api
-
-
-class TestTerm(api.Terminal):
-    def __init__(self, back: IO) -> None:
-        self.io = back
-
-    def stdin(self) -> IO:
-        return self.io
-
-    def stdout(self) -> IO:
-        return self.io
+from project.core.terminal import IOTerminal
 
 
 class ApiTest(unittest.TestCase):
     def setUp(self) -> None:
         self.api = api.SimpleBoot().start()
         self.test_msg = "Hello Friends\n"
-
-    def test_stdio(self) -> None:
-        self.back_io = io.StringIO()
-        term = TestTerm(self.back_io)
-        self.api.add_terminal("Test", term)
-
-        self.api.send_to_all(self.test_msg)
-        self.assertEqual(
-            self.back_io.getvalue(), self.test_msg, "Testing stdout of terminals"
-        )
+        self.term = IOTerminal(self.api)
+        os.mkdir("./.test_fs")
+        shutil.copytree("../project/file_system/bin", "./.test_fs/bin")
 
     def test_fs(self) -> None:
         self.assertFalse(self.api.exists_file("not_a_file"))
@@ -47,10 +30,54 @@ class ApiTest(unittest.TestCase):
         print(cmd)
         self.assertEqual(len(cmd), 6)
 
+    def test_cd(self) -> None:
+        i = io.StringIO("cd bin")
+        o = io.StringIO()
+        sys.stdin = i
+        sys.stdout = o
+        self.term = IOTerminal(self.api, ps_format='{path}')
+        try:
+            self.term.start()
+        except EOFError:
+            self.assertIn('bin', o.getvalue())
+
+    def test_cat(self) -> None:
+        with pl.Path("./.test_fs/a_file").open("w") as f:
+            f.write(self.test_msg)
+        i = io.StringIO("cat a_file")
+        o = io.StringIO()
+        sys.stdin = i
+        sys.stdout = o
+        self.term = IOTerminal(self.api, ps_format='')
+        try:
+            self.term.start()
+        except EOFError:
+            self.assertEqual(o.getvalue(), f"{self.test_msg}\n")
+
+    def test_echo(self) -> None:
+        i = io.StringIO(f"echo {self.test_msg}")
+        o = io.StringIO()
+        sys.stdin = i
+        sys.stdout = o
+        self.term = IOTerminal(self.api, ps_format='')
+        try:
+            self.term.start()
+        except EOFError:
+            self.assertEqual(o.getvalue(), self.test_msg)
+
+    def test_touch(self) -> None:
+        i = io.StringIO(f"touch touched")
+        o = io.StringIO()
+        sys.stdin = i
+        sys.stdout = o
+        self.term = IOTerminal(self.api, ps_format='')
+        try:
+            self.term.start()
+        except EOFError:
+            self.assertTrue(self.api.exists_file('touched'))
+
     def tearDown(self) -> None:
         shutil.rmtree("./.test_fs")
-        os.mkdir("./.test_fs")
-        shutil.copytree("../project/file_system/bin", "./.test_fs/bin")
         pass
 
 
