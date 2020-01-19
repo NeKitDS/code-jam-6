@@ -6,12 +6,12 @@ from project.core.terminal import IOTerminal
 
 
 class Echo(command.Command):
-    def __init__(self):
-        super().__init__(name='echo')
+    def __init__(self) -> None:
+        super().__init__(name="echo")
 
-    @command.option('text', nargs='*')
+    @command.option("text", nargs="*")
     def handle_text(self, ns: Namespace, term: IOTerminal) -> None:
-        self.text = (' ').join(ns.text)
+        self.text = (" ").join(ns.text)
 
     def main(self, ns: Namespace, term: IOTerminal) -> str:
         return self.text

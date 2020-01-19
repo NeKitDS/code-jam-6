@@ -9,15 +9,15 @@ from project.core.terminal import IOTerminal
 
 
 class Exit(command.Command):
-    def __init__(self):
-        super().__init__(name='exit')
+    def __init__(self) -> None:
+        super().__init__(name="exit")
 
-    @command.option('code', nargs='?', type=int, default=0)
+    @command.option("code", nargs="?", type=int, default=0)
     def handle_code(self, ns: Namespace, term: IOTerminal) -> None:
         self.code = ns.code
 
     def main(self, ns: Namespace, term: IOTerminal) -> NoReturn:
-        log.critical(f'exit: {self.code}')
+        log.critical(f"exit: {self.code}")
         _exit(self.code)
 
 

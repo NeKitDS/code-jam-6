@@ -3,37 +3,37 @@ from types import FunctionType
 from typing import Any, Callable, List, Tuple, Union
 
 Function = Callable[[Any], Any]
-Terminal = 'project.terminal.Terminal'
+Terminal = "project.terminal.Terminal"
 
 
 class PatchedParser(ArgumentParser):
-    def exit(self, status: int = 0, message: str = ''):
+    def exit(self, status: int = 0, message: str = "") -> None:
         self._print_message(message)
 
 
 class Option:
-    def __init__(self, func, *args, **kwargs) -> None:
-
+    def __init__(self, func: Callable, *args: Any, **kwargs: Any) -> None:
         if not isinstance(func, FunctionType):
-            raise TypeError(f'Expected function, got type {type(func).__name__}.')
+            raise TypeError(f"Expected function, got type {type(func).__name__}.")
 
         self._func = func
         self._args = args
         self._kwargs = kwargs
 
     def __repr__(self) -> str:
-        return f'<Option func={self._func} args={self._args} kwargs={self._kwargs}>'
+        return f"<Option func={self._func} args={self._args} kwargs={self._kwargs}>"
 
-    def _call(self, *args, **kwargs) -> Any:
+    def _call(self, *args: Any, **kwargs: Any) -> Any:
         return self._func(*args, **kwargs)
 
     def _expose_to(self, parser: ArgumentParser) -> None:
         parser.add_argument(*self._args, **self._kwargs)
 
 
-def option(*args, **kwargs) -> Function:
+def option(*args: Any, **kwargs: Any) -> Function:
     def wrapper(f: Function) -> Option:
         return Option(f, *args, **kwargs)
+
     return wrapper
 
 
@@ -47,18 +47,20 @@ class Command:
         self._make_args()
 
     def __repr__(self) -> str:
-        return f'<Command {self.name}>'
+        return f"<Command {self.name}>"
 
     @property
     def name(self) -> str:
         return self._name
 
-    @option('-h', '--help', action='store_true', default=False)
+    @option("-h", "--help", action="store_true", default=False)
     def _help(self, ns: Namespace, term: Terminal) -> None:
         if ns.help:
             self._parser.print_help()
 
-    def execute(self, term: Terminal, args: Union[str, List[str], Tuple[str]] = ()) -> Any:
+    def execute(
+            self, term: Terminal, args: Union[str, List[str], Tuple[str]] = ()
+    ) -> Any:
         ns: Namespace = self._parse(args)
 
         for option in self._opt:

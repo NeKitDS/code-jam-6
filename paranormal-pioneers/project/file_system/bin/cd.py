@@ -5,12 +5,11 @@ from project.core.parser import Parser
 from project.core.terminal import IOTerminal
 
 
-
 class CD(command.Command):
     def __init__(self) -> None:
-        super().__init__(name='cd')
+        super().__init__(name="cd")
 
-    @command.option('dir', nargs='?', default='.')
+    @command.option("dir", nargs="?", default=".")
     def set_dir(self, ns: Namespace, term: IOTerminal) -> None:
         self.path = term.api.change_dir(term.path, ns.dir)
 

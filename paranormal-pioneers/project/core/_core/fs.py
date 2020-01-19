@@ -1,9 +1,11 @@
 import pathlib as pl
-from typing import IO, List, Generator, Union
+from typing import Generator, IO, Iterable, Union
 
 from project.core.log import log
+
 from .apibase import ApiBase
-from project.core._core.vm import OSApiException
+from .vm import OSApiException
+
 PathLike = Union[str, pl.Path]
 
 
@@ -19,28 +21,30 @@ class FsApi(ApiBase):
         else:
             raise OSApiException(f"File '{path}' does not exist")
 
-    def exists_file(self, _path: str)->bool:
+    def exists_file(self, _path: str) -> bool:
         path = self._to_full_path(_path)
         return path.exists()
 
-    def list_dir(self, _path: str)->Generator[pl.Path, None, None]:
+    def list_dir(self, _path: str) -> Generator[pl.Path, None, None]:
         path = self._to_full_path(_path)
         yield from path.iterdir()
 
-    def resolve_commands(self, search=('./bin',)) -> Generator[pl.Path, None, None]:
+    def resolve_commands(
+        self, search: Iterable[str] = ("./bin",)
+    ) -> Generator[pl.Path, None, None]:
         for _path in search:
             for file in filter(pl.Path.is_file, self.list_dir(_path)):
-                if file.suffix == '.py':
+                if file.suffix == ".py":
                     yield file
 
-    def check_env(self, path: str):
+    def check_env(self, path: str) -> bool:
         fpath = self._to_full_path(path)
         try:
             fpath.relative_to(self.env.fs_root)
             return True
         except ValueError:  # outside
             if self.env.ex_env:
-                log.warning('error: attempt to exit the environment')
+                log.warning("error: attempt to exit the environment")
                 return False
 
     def change_dir(self, before: str, after: PathLike) -> PathLike:
@@ -50,11 +54,11 @@ class FsApi(ApiBase):
             return before
         fpath = self._to_full_path(new_dir)
         if not fpath.exists():
-            log.warning('error: path does not exist')
+            log.warning("error: path does not exist")
             return before
 
         if fpath.is_file():
-            log.warning('error: cannot accept files')
+            log.warning("error: cannot accept files")
             return before
 
         return fpath.relative_to(self.env.fs_root)
@@ -65,8 +69,8 @@ class FsApi(ApiBase):
         path /= pl.Path(str(after))
         return path.relative_to(self.env.fs_root)
 
-    def is_file(self, _path: str):
+    def is_file(self, _path: str) -> bool:
         return self._to_full_path(_path).is_file()
 
-    def touch(self, _path: str):
+    def touch(self, _path: str) -> None:
         return self._to_full_path(_path).touch()

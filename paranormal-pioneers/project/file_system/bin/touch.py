@@ -1,15 +1,15 @@
 from argparse import Namespace
 
-from project.core import command
-from project.core.api import Api, PathLike
+from project.core import PathLike, command
+from project.core.api import Api
 from project.core.log import log
 from project.core.parser import Parser
 from project.core.terminal import IOTerminal
 
 
 class Touch(command.Command):
-    def __init__(self):
-        super().__init__(name='touch')
+    def __init__(self) -> None:
+        super().__init__(name="touch")
 
     def get_path(self, before: PathLike, after: PathLike, api: Api) -> PathLike:
         path = api.find_dir(before, after)
@@ -17,7 +17,7 @@ class Touch(command.Command):
             return before
         return path
 
-    @command.option('path')
+    @command.option("path")
     def handle_path(self, ns: Namespace, term: IOTerminal) -> None:
         self.path = self.get_path(term.path, ns.path, term.api)
 
@@ -26,7 +26,7 @@ class Touch(command.Command):
             if ns.path is not None:
                 term.api.touch(self.path)
         except OSError:
-            log.warning('error: no such file or directory')
+            log.warning("error: no such file or directory")
 
 
 def setup(parser: Parser) -> None:
