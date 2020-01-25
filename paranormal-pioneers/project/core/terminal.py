@@ -13,10 +13,8 @@ class Terminal:
         io_in: IO = stdin,
         io_err: IO = stderr,
         io_out: IO = stdout,
-        ps_format: str = '{name}@{terminal}:{path}{ps}{end}',
-        name: str = 'root',
-        term_name: str = 'term',
-        ps: str = '$',
+        ps_format: str = '{name}>{end}',
+        name: str = 'A',
     ) -> None:
         # those are useless for now
         self._in = io_in
@@ -28,8 +26,6 @@ class Terminal:
 
         self._format = ps_format
         self._name = name
-        self._term_name = term_name
-        self._ps = ps
         self._path: Path = Path(FILE_SYSTEM)
 
         self._parser = Parser()
@@ -39,16 +35,8 @@ class Terminal:
         return self._fs
 
     @property
-    def ps(self) -> str:
-        return self._ps
-
-    @property
     def name(self) -> str:
         return self._name
-
-    @property
-    def term(self) -> str:
-        return self._term_name
 
     @property
     def format(self) -> str:
@@ -88,13 +76,7 @@ class Terminal:
                     print(result)
 
     def format_ps(self, end: str = '') -> str:
-        try:
-            path = Path('~') / self.path.relative_to(FILE_SYSTEM)
-        except ValueError:
-            path = self.path
-        return self.format.format(
-            path=path, name=self.name, terminal=self.term, ps=self.ps, end=end
-        )
+        return self.format.format(name=self.name, end=end)
 
     def _load_commands(self) -> None:
         for file in self.fs.resolve_commands():
