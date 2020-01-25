@@ -6,7 +6,7 @@ from project.core.path import Path
 
 Function = Callable[[Any], Any]
 PathLike = Union[str, Path]
-fs = 'project.core.utils.FS'
+FSType = 'project.core.utils.FS'
 
 ROOT = FILE_SYSTEM.resolve()
 CURRENT = '.'
@@ -16,7 +16,7 @@ PARENT = '..'
 def resolve_path() -> Function:
     def decorator(method: Function) -> Function:
         @wraps(method)
-        def wrapper(fs: fs, path: str, *args, **kwargs) -> Any:
+        def wrapper(fs: FSType, path: str, *args, **kwargs) -> Any:
             def resolve(path: str) -> Path:
                 return (ROOT / path).resolve()
             return method(fs, resolve(path), *args, **kwargs)
