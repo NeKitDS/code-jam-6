@@ -6,6 +6,7 @@ from project.core.path import Path
 from project.core.utils import FS
 from project.core.parser import Parser
 
+# Set env information
 env = dict(
     name='name',
     term_name='term',
